@@ -5,7 +5,6 @@ mod disk;
 mod debug;
 
 use core::arch::asm;
-use core::fmt;
 use crate::debug::debug;
 
 use core::panic::PanicInfo;
