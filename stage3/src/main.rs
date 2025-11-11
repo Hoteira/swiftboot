@@ -38,11 +38,11 @@ pub extern "C" fn _start() -> ! {
 
     unsafe {
         asm!(
-            "mov ebx, {1:e}",
+            "push {1:e}",
             "call {0:e}",
             in(reg) 0x10_0000,
-            in(reg) ebx,
-
+            in(reg) ebx as u32,
+            options(nostack),
         );
     }
 

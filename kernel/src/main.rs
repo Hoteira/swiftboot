@@ -13,15 +13,15 @@ fn panic(_info: &PanicInfo) -> ! {
 
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".start")]
-pub extern "C" fn _start() -> ! {
-    Terminal::new().write_string("[k] starting kernel ...");
+pub extern "C" fn _start(arg1: u32) -> ! {
+
+    print!("[k] starting kernel ...");
+    println!(" arg1: {:x}", arg1);
 
     loop {}
 }
 
-/*
-    Debug print macros from libk
-*/
+
 pub struct Terminal {}
 
 impl Terminal {
