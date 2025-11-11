@@ -2,3 +2,5 @@
 /build/*
 Cargo.lock
 /.idea
+/kernel
+make.bat
