@@ -81,6 +81,20 @@ Uses custom target specs:
 - `bits16.json` — 16-bit real mode (Stage 1, 2)
 - `bits32.json` — 32-bit protected mode (Stage 3)
 
+All stages have constants pointing to the next stage (both in the disk and in the RAM)
+Stage 2 also defines the parameters for the display mode that will be chosen (feel free to customize them to your liking):
+```rust
+MAX_BPP: u8 = 32;
+MIN_BPP: u8 = 24;
+
+MAX_WIDTH: u16 = 1024;
+MIN_WIDTH: u16 = 0;
+MAX_HEIGHT: u16 = 800;
+MIN_HEIGHT: u16 = 0;
+
+MODE: u16 = 0x1; // 0 => VGA, 1 => VBE
+```
+
 ## Future Features
 
 - [ ] 64-bit mode
