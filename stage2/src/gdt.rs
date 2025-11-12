@@ -59,7 +59,7 @@ impl Gdt {
         let tss_limit_high = ((tss_limit >> 16) & 0xFF) as u8;
         let tss_limit_low = (tss_limit & 0xFFFF) as u16;
 
-        let tss_base = addr_of!(crate::tss::TSS) as u32;
+        let tss_base = addr_of!(crate::tss::BASE_TSS) as u32;
         let tss_base_high = ((tss_base >> 16) & 0xFF) as u8;
         let tss_base_low = (tss_base & 0xFFFF) as u16;
 
@@ -68,6 +68,6 @@ impl Gdt {
 
         self.entries[5] = Entry { entry: tss_limit | tss_base | (0x89 << 40) | (0x0 << 52), };
 
-        addr_of!(crate::tss::TSS) as u16
+        addr_of!(crate::tss::BASE_TSS) as u16
     }
 }

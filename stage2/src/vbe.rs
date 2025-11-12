@@ -1,5 +1,5 @@
 use core::arch::asm;
-use crate::{BOOT, VBE_MODE};
+use crate::{BOOT, MAX_BPP, MAX_HEIGHT, MAX_WIDTH, MIN_BPP, MIN_HEIGHT, MIN_WIDTH, VBE_MODE};
 
 
 #[repr(C, packed)]
@@ -81,7 +81,7 @@ pub fn load_vbe_mode(mode: u16) {
 
 #[inline(never)]
 fn save_vbe_mode(mode: u16) {
-    let mode_info_ptr = unsafe { &raw mut BOOT.mode as *mut VbeModeInfoBlock as usize };
+    let mode_info_ptr = unsafe { &raw mut BOOT.mode as usize };
 
     unsafe {
         asm!(
@@ -115,43 +115,49 @@ pub fn find_vbe_mode() -> u16 {
     let base_mode = unsafe { BOOT.vbe.video_ptr } as *const u16;
 
     let mut best_mode = 0x0013;
+    let mut best_width = 0;
+    let mut best_height = 0;
+    let mut best_bpp = 0;
     let mut i = 0;
-    let mut mode;
 
     loop {
-        mode = unsafe { core::ptr::read_volatile(base_mode.offset(i)) };
+        let mode = unsafe { core::ptr::read_volatile(base_mode.offset(i)) };
 
         if mode == 0xFFFF {
             break;
         }
 
         load_vbe_mode(mode);
+
         let mode_width = unsafe { VBE_MODE.width };
         let mode_height = unsafe { VBE_MODE.height };
         let mode_bpp = unsafe { VBE_MODE.bpp };
         let mode_red = unsafe { VBE_MODE.red_field_position };
         let mode_green = unsafe { VBE_MODE.green_field_position };
-        let mode_blue = unsafe { VBE_MODE.blue_field_position};
+        let mode_blue = unsafe { VBE_MODE.blue_field_position };
         let mode_attr = unsafe { VBE_MODE.attributes };
+        let mode_fb = unsafe { VBE_MODE.framebuffer };
 
-
-        if mode_red != 16 || mode_green != 8 || mode_blue != 0 {
+        if mode_red != 16 || mode_green != 8 || mode_blue != 0 || mode_fb == 0 {
             i += 1;
             continue;
         }
 
-        load_vbe_mode(best_mode);
-        let best_mode_width = unsafe { VBE_MODE.width };
-        let best_mode_height = unsafe { VBE_MODE.height };
-
-        if (mode_width > best_mode_width
-            && mode_width <= 1024
-            && mode_height > best_mode_height
-            && mode_height <= 1024
-            && (mode_bpp == 24 || mode_bpp == 32))
-            && (mode_attr & 0x80) != 0
+        if mode_width >= MIN_WIDTH
+            && mode_width <= MAX_WIDTH
+            && mode_height >= MIN_HEIGHT
+            && mode_height <= MAX_HEIGHT
+            && mode_bpp >= MIN_BPP
+            && mode_bpp <= MAX_BPP
+            && (mode_attr & 0x80) != 0  // Linear framebuffer
+            && (mode_width > best_width
+            || (mode_width == best_width && mode_height > best_height)
+            || (mode_width == best_width && mode_height == best_height && mode_bpp > best_bpp))
         {
             best_mode = mode;
+            best_width = mode_width;
+            best_height = mode_height;
+            best_bpp = mode_bpp;
             save_vbe_mode(best_mode);
         }
 

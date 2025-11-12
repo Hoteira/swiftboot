@@ -1,4 +1,5 @@
 use core::arch::asm;
+use crate::{NEXT_STAGE_LBA, NEXT_STAGE_RAM};
 
 #[repr(C, packed)]
 struct Dap {
@@ -15,9 +16,9 @@ pub fn read_stub() {
         size: size_of::<Dap>() as u8,
         zero: 0,
         sectors: 32,
-        offset: 0xFE00,
+        offset: NEXT_STAGE_RAM,
         segment: 0,
-        lba: 3072,
+        lba: NEXT_STAGE_LBA,
     };
 
     unsafe {
@@ -31,8 +32,8 @@ pub fn read_stub() {
 
             in(reg) &disk_setup as *const Dap as u16,
             out(reg) _,
-            in("ax") 0x4200 as u16,
-            in("dx") 0x80 as u16,
+            in("ax") 0x4200_u16,
+            in("dx") 0x80_u16,
         );
     }
 }

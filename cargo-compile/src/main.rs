@@ -1,5 +1,5 @@
 use std::fs;
-use std::fs::File;
+use std::fs::{create_dir, File};
 use std::io::{Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -7,6 +7,8 @@ use std::process::Command;
 fn main() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let root = root.parent().unwrap();
+
+    let _ = create_dir(root.join("build"));
 
     let build_dir = root.join("build");
     fs::create_dir_all(&build_dir).unwrap();

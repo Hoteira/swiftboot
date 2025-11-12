@@ -42,7 +42,7 @@ pub struct TaskStateSegment {
     pub ssp: u32,
 }
 
-pub static mut TSS: TaskStateSegment = TaskStateSegment {
+pub static mut BASE_TSS: TaskStateSegment = TaskStateSegment {
     link: 0,
     padding_0: 0,
     esp0: 0x30_0000,

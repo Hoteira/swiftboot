@@ -7,9 +7,7 @@ mod tss;
 mod mmap;
 mod vbe;
 mod debug;
-
-static mut BOOT: BootInfo = unsafe { core::mem::zeroed() };
-static mut VBE_MODE: VbeModeInfoBlock = unsafe { core::mem::zeroed() };
+mod rsdp;
 
 use core::ptr::addr_of;
 use gdt::GDT;
@@ -18,17 +16,26 @@ use core::arch::asm;
 use core::panic::PanicInfo;
 use crate::debug::debug;
 use crate::mmap::{get_mmap, MemoryMap};
+use crate::rsdp::{get_rsdp, Rsdp};
 use crate::vbe::{find_vbe_mode, get_vbe_info, VbeInfoBlock, VbeModeInfoBlock};
 
-#[repr(C, packed)]
-#[derive(Debug, Clone, Copy)]
-struct Rsdp {
-    signature: [u8; 8],
-    checksum: u8,
-    oem_id: [u8; 6],
-    revision: u8,
-    rsdt_address: u32,
-}
+
+static mut BOOT: BootInfo = unsafe { core::mem::zeroed() };
+static mut VBE_MODE: VbeModeInfoBlock = unsafe { core::mem::zeroed() };
+
+pub const NEXT_STAGE_RAM: u16 = 0xFE00;
+pub const NEXT_STAGE_LBA: u64 = 3072;
+
+pub const MAX_BPP: u8 = 32;
+pub const MIN_BPP: u8 = 24;
+
+pub const MAX_WIDTH: u16 = 1024; //to get the biggest sire just set it to u16::MAX
+pub const MIN_WIDTH: u16 = 0;
+pub const MAX_HEIGHT: u16 = 800;
+pub const MIN_HEIGHT: u16 = 0;
+
+pub const MODE: u16 = 0x1; // 0 => VGA, 1 => VBE
+
 
 #[repr(C, packed)]
 #[derive(Debug, Clone, Copy)]
@@ -64,47 +71,24 @@ fn protected_mode() {
         BOOT.tss = tss_addr;
         get_mmap();
 
-        let best_mode = find_vbe_mode();
+        if MODE != 0 {
+            let best_mode = find_vbe_mode();
 
-        asm!(
+            asm!(
             "int 0x10",
-
             in("ax") 0x4F02,
             in("bx") best_mode
-        );
+            );
+        }
 
         asm!("mov eax, cr0", "or eax, 1 << 0", "mov cr0, eax",);
 
         asm!("mov bx, {0:x}", in(reg) addr_of!(BOOT) as u16);
 
-        asm!("ljmp $0x8, $0xfe00", options(att_syntax));
+        asm!("ljmp $0x8, ${}", const NEXT_STAGE_RAM, options(att_syntax));
     }
 }
 
-#[inline(never)]
-fn get_rsdp() -> Rsdp {
-    let mut addr = 0xE0000 as *const u8;
-    let end = 0xFFFFF as *const u8;
-
-    unsafe {
-        while addr <= end {
-            let sig = core::slice::from_raw_parts(addr, 8);
-            if sig == b"RSD PTR " {
-                let rsdp = (addr as *const Rsdp).read();
-                return rsdp;
-            }
-            addr = addr.add(16);
-        }
-    }
-
-    Rsdp {
-        signature: [0; 8],
-        checksum: 0,
-        oem_id: [0; 6],
-        revision: 0,
-        rsdt_address: 0,
-    }
-}
 
 
 #[panic_handler]

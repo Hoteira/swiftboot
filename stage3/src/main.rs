@@ -9,6 +9,9 @@ use crate::debug::debug;
 
 use core::panic::PanicInfo;
 
+pub const NEXT_STAGE_RAM: u32 = 0x10_0000;
+pub const NEXT_STAGE_LBA: u64 = 5120;
+
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".start")]
 pub extern "C" fn _start() -> ! {
@@ -31,8 +34,7 @@ pub extern "C" fn _start() -> ! {
         );
     }
 
-    let target = 0x10_0000 as *mut u8;
-    disk::read(5120, 2048, target);
+    disk::read(NEXT_STAGE_LBA, 2048, NEXT_STAGE_RAM as *mut u8);
 
     debug("[+] Jumping to kernel ...\n");
 
@@ -40,7 +42,7 @@ pub extern "C" fn _start() -> ! {
         asm!(
             "push {1:e}",
             "call {0:e}",
-            in(reg) 0x10_0000,
+            in(reg) NEXT_STAGE_RAM,
             in(reg) ebx as u32,
             options(nostack),
         );
