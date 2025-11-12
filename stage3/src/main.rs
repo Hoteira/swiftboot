@@ -12,6 +12,8 @@ use core::panic::PanicInfo;
 pub const NEXT_STAGE_RAM: u32 = 0x10_0000;
 pub const NEXT_STAGE_LBA: u64 = 5120;
 
+const STACK_ADDRESS: u32 = 0x30_0000;
+
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".start")]
 pub extern "C" fn _start() -> ! {
@@ -27,7 +29,7 @@ pub extern "C" fn _start() -> ! {
             "mov esp, {1:e}",
 
             out(reg) _,
-            in(reg) 0x30_0000,
+            in(reg) STACK_ADDRESS,
             out("ebx") ebx,
 
             options(nostack),
