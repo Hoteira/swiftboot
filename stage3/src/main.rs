@@ -27,7 +27,7 @@ const BOOT_MODE: u8 = 64; //32 or 64 bits
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".start")]
 pub extern "C" fn _start() -> ! {
-    let ebx: u16;
+    let ebx: u32;
 
     unsafe {
         asm!(
@@ -49,11 +49,11 @@ pub extern "C" fn _start() -> ! {
     let mut bootinfo = ebx as *mut BootInfo;
     unsafe {
         (*bootinfo).kernel_stack = STACK_ADDRESS;
+        (*bootinfo).pml4 = 0x2_0000;
     }
 
-    debug("[+] Jumping to kernel ...\n");
-
     if BOOT_MODE == 32 {
+        debug("[+] Jumping to kernel ...\n");
 
         disk::read(NEXT_STAGE_LBA, 2048, KERNEL_RAM as *mut u8);
 
@@ -62,24 +62,22 @@ pub extern "C" fn _start() -> ! {
                 "push {1:e}",
                 "call {0:e}",
                 in(reg) KERNEL_RAM,
-                in(reg) ebx as u32,
+                in(reg) ebx,
                 options(nostack),
             );
         }
     } else if BOOT_MODE == 64 {
-        debug("Mode unsupported");
+        debug("[+] Jumping to stage long mode ...\n");
 
         disk::read(NEXT_STAGE_LBA, 1024, NEXT_STAGE_RAM as *mut u8);
 
-        //paging::setup_paging();
+        paging::setup_paging();
 
         unsafe {
 
-            (*bootinfo).pml4 = addr_of!(paging::PML4) as u64;
-
-            /*asm!(
+            asm!(
                 "mov cr3, {0:e}",
-                in(reg) pml4_address as u32,
+                in(reg) 0x2_0000,
             );
 
             // Enable PAE (CR4.PAE = 1)
@@ -91,13 +89,13 @@ pub extern "C" fn _start() -> ! {
 
             // Set LME bit in EFER MSR
             asm!(
-                "mov ecx, 0xC0000080",  // EFER MSR
+                "mov ecx, 0xC0000080",
                 "rdmsr",
-                "or eax, 1 << 8",       // LME bit
+                "or eax, 1 << 8",
                 "wrmsr",
             );
 
-            // Enable paging (CR0.PG = 1), which activates long mode
+            // Enable paging
             asm!(
                 "mov eax, cr0",
                 "or eax, 1 << 31",
@@ -107,8 +105,8 @@ pub extern "C" fn _start() -> ! {
             (*(&raw mut GDT)).write_tss();
             (*(&raw mut GDT)).load();
 
-            asm!("mov ebx, {0:e}", in(reg) ebx);
-            asm!("ljmp $0x8, ${}", const NEXT_STAGE_RAM, options(att_syntax));*/
+            asm!("mov edi, {0:e}", in(reg) ebx);
+            asm!("ljmp $0x28, ${}", const NEXT_STAGE_RAM, options(att_syntax));
         }
     }
 
