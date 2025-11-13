@@ -3,7 +3,8 @@ members = [
     "bootloader",
     "stage2",
     "stage3",
-    "cargo-compile"
+    "cargo-compile",
+    "kernel", "stage4",
 ]
 
 resolver="2"

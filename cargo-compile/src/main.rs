@@ -15,19 +15,18 @@ fn main() {
 
     let bits16_path = root.join("bits16.json");
     let bits32_path = root.join("bits32.json");
-
-    cargo_build("bootloader", &bits16_path, &root);
-    cargo_build("stage2", &bits16_path, &root);
-    cargo_build("stage3", &bits32_path, &root);
+    let bits64_path = root.join("bits64.json");
 
     obj_copy("bootloader", &bits16_path, &build_dir.join("bootloader.bin"), &root);
     obj_copy("stage2", &bits16_path, &build_dir.join("stage2.bin"), &root);
     obj_copy("stage3", &bits32_path, &build_dir.join("stage3.bin"), &root);
+    obj_copy("stage4", &bits64_path, &build_dir.join("stage4.bin"), &root);
 
     let mut disk = File::create(build_dir.join("disk.img")).unwrap();
     copy(&mut disk, "bootloader", 0, &build_dir);
     copy(&mut disk, "stage2", 2048, &build_dir);
     copy(&mut disk, "stage3", 3072, &build_dir);
+    copy(&mut disk, "stage4", 5120, &build_dir);
 }
 
 fn copy(disk: &mut File, package: &str, lba: u64, build_dir: &Path) {

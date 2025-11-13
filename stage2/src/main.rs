@@ -45,6 +45,8 @@ struct BootInfo {
     tss: u16,
     vbe: VbeInfoBlock,
     mode: VbeModeInfoBlock,
+    pml4: u64,
+    kernel_stack: u64,
 }
 
 #[unsafe(no_mangle)]
