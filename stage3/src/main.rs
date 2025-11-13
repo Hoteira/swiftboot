@@ -17,7 +17,7 @@ use crate::boot::BootInfo;
 use crate::gdt::GDT;
 
 pub const NEXT_STAGE_RAM: u64 = 0x1_7e00;
-pub const NEXT_STAGE_LBA: u64 = 5120;
+pub const NEXT_STAGE_LBA: u64 = 6144;
 pub const KERNEL_RAM: u32 = 0x10_0000;
 
 
