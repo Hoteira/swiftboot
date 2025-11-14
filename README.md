@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![no_std](https://img.shields.io/badge/no__std-compatible-success.svg)](https://docs.rust-embedded.org/book/)
 
-<sub>🚀 Three-Stage Boot • 🦀 Pure Rust • 💻 Real Mode → Protected Mode</sub>
+<sub>🚀 Three-Stage Boot • 🦀 Pure Rust • 💻 Real Mode → Protected Mode → Long Mode </sub>
 </div>
 
 <br>
@@ -38,23 +38,25 @@ qemu-system-x86_64 -drive file=build/disk.img,format=raw -m 1G -serial stdio
 
 ## Features
 
-- 🚀 **Three-Stage Boot** — Modular 512B → 16KB → 16KB → Kernel progression
+- 🚀 **Three-Stage Boot** — Modular 512B → 16KB → 16KB → Kernel (32-bits)
+- 🚀 **Four-Stage Boot** — Modular 512B → 16KB → 16KB → 16KB → Kernel (64-bits)
 - 🔧 **Hardware Setup** — Configures GDT, TSS, memory map (E820), RSDP, and VBE graphics
-- 💾 **Disk I/O** — BIOS interrupts (16-bit) and ATA PIO (32-bit)
-- 🦀 **Pure Rust** — Minimal assembly, custom target specs for 16/32-bit
+- 💾 **Disk I/O** — BIOS interrupts (16-bit) and ATA PIO (32/64-bit)
+- 🦀 **Pure Rust** — Minimal assembly, custom target specs for 16/32/64-bit
 
 ## Architecture
 ```
-Stage 1 (0x7c00)  →  Stage 2 (0x7e00)  →  Stage 3 (0xfe00)  →  Kernel (0x10_0000)
-  512 bytes            16KB real mode       16KB protected       Your kernel here
-  BIOS loads           Sets up hardware     Loads kernel         Receives boot info
+Stage 1 (0x7c00)  →  Stage 2 (0x7e00)  →  Stage 3 (0xfe00)  →  Stage 3 (0x1_7e00)  →  Kernel (0x10_0000)
+  512 bytes            16KB real mode       16KB protected       16KB protected       Your kernel here
+  BIOS loads           Sets up hardware    boots in 32 or 64      Loads kernel       Receives boot info
 ```
 
 **Disk Layout:**
 - LBA 0: Stage 1 (MBR)
 - LBA 2048: Stage 2
 - LBA 3072: Stage 3
-- LBA 5120: Kernel (1MB reserved)
+- LBA 5120: Stage 4
+- LBA 6144: Your Kernel
 
 **Boot Info Passed to Kernel:**
 ```rust
@@ -80,6 +82,7 @@ cargo compile  # Builds all stages, converts to raw binaries, assembles disk.img
 Uses custom target specs:
 - `bits16.json` — 16-bit real mode (Stage 1, 2)
 - `bits32.json` — 32-bit protected mode (Stage 3)
+- `bits64.json` — 64-bit long mode (Stage 4)
 
 All stages have constants pointing to the next stage (both in the disk and in the RAM)
 Stage 2 also defines the parameters for the display mode that will be chosen (feel free to customize them to your liking):
@@ -95,9 +98,15 @@ MIN_HEIGHT: u16 = 0;
 MODE: u16 = 0x1; // 0 => VGA, 1 => VBE
 ```
 
+Stage 3 defines the mode to boot into and the stack
+```rust
+BOOT_MODE: u8 = 64; //32 or 64 bits
+STACK_ADDRESS: u64 = 0x30_0000;
+```
+
 ## Future Features
 
-- [ ] 64-bit mode
+- [x] 64-bit mode
 - [ ] Multiboot2 compliant
 
 ## License
