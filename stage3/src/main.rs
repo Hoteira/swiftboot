@@ -17,8 +17,9 @@ use crate::boot::BootInfo;
 use crate::gdt::GDT;
 
 pub const NEXT_STAGE_RAM: u64 = 0x1_7e00;
-pub const NEXT_STAGE_LBA: u64 = 6144;
+pub const NEXT_STAGE_LBA: u64 = 5120;
 pub const KERNEL_RAM: u32 = 0x10_0000;
+pub const KERNEL_LBA: u64 = 1644;
 
 
 const STACK_ADDRESS: u64 = 0x30_0000;
@@ -55,7 +56,7 @@ pub extern "C" fn _start() -> ! {
     if BOOT_MODE == 32 {
         debug("[+] Jumping to kernel ...\n");
 
-        disk::read(NEXT_STAGE_LBA, 2048, KERNEL_RAM as *mut u8);
+        disk::read(KERNEL_LBA, 2048, KERNEL_RAM as *mut u8);
 
         unsafe {
             asm!(
@@ -67,7 +68,7 @@ pub extern "C" fn _start() -> ! {
             );
         }
     } else if BOOT_MODE == 64 {
-        debug("[+] Jumping to stage long mode ...\n");
+        debug("[+] Jumping to long mode ...\n");
 
         disk::read(NEXT_STAGE_LBA, 1024, NEXT_STAGE_RAM as *mut u8);
 
