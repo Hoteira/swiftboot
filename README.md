@@ -107,7 +107,8 @@ STACK_ADDRESS: u64 = 0x30_0000;
 ## Future Features
 
 - [x] 64-bit mode
-- [ ] Multiboot2 compliant
+- [ ] FS implementation
+- [ ] ELF file support
 
 ## License
 
