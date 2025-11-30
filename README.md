@@ -70,18 +70,16 @@ struct BootInfo {
 
 #[unsafe(no_mangle)]
 extern "C" fn _start(bootinfo_ptr: *const BootInfo) { ... }
+```
 
 ## 🏗️ Boot Stage Pipeline
 
 The boot process is divided into four distinct stages, utilizing custom target specifications (`bits16`, `bits32`, `bits64`) to ensure correct code generation.
 
 <div align="center">
-  <img src="icon/graph.svg" alt="Swiftboot Boot Flow Diagram" width="800" height="auto">
+  <img src="icon/graph.svg" alt="Swiftboot Boot Flow Diagram" width="50%" height="auto">
 </div>
 <br>
-
-| Stage | Address | Mode | Description |
-```
 
 ## Custom Build System
 
@@ -97,22 +95,23 @@ Uses custom target specs:
 
 All stages have constants pointing to the next stage (both in the disk and in the RAM)
 Stage 2 also defines the parameters for the display mode that will be chosen (feel free to customize them to your liking):
+
 ```rust
-MAX_BPP: u8 = 32;
-MIN_BPP: u8 = 24;
+const MAX_BPP: u8 = 32;
+const MIN_BPP: u8 = 24;
 
-MAX_WIDTH: u16 = 1024;
-MIN_WIDTH: u16 = 0;
-MAX_HEIGHT: u16 = 800;
-MIN_HEIGHT: u16 = 0;
+const MAX_WIDTH: u16 = 1024;
+const MIN_WIDTH: u16 = 0;
+const MAX_HEIGHT: u16 = 800;
+const MIN_HEIGHT: u16 = 0;
 
-MODE: u16 = 0x1; // 0 => VGA, 1 => VBE
+const MODE: u16 = 0x1; // 0 => VGA, 1 => VBE
 ```
 
 Stage 3 defines the mode to boot into and the stack
 ```rust
-BOOT_MODE: u8 = 64; //32 or 64 bits
-STACK_ADDRESS: u64 = 0x30_0000;
+const BOOT_MODE: u8 = 64; //32 or 64 bits
+const STACK_ADDRESS: u64 = 0x30_0000;
 ```
 
 ## Future Features
