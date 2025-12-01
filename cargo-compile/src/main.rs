@@ -8,6 +8,11 @@ fn main() {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let root = root.parent().unwrap();
 
+    let build_path = root.join("build");
+    if build_path.exists() {
+        fs::remove_dir_all(&build_path).unwrap();
+    }
+
     let _ = create_dir(root.join("build"));
 
     let build_dir = root.join("build");

@@ -81,10 +81,10 @@ pub extern "C" fn _start() -> ! {
                 in(reg) 0x2_0000,
             );
 
-            // Enable PAE (CR4.PAE = 1)
+            // Enable PAE (CR4.PAE = 1) + SSE (OSFXSR = 1, OSXMMEXCPT = 1)
             asm!(
                 "mov eax, cr4",
-                "or eax, 1 << 5",
+                "or eax, 0x620", // (1 << 5) | (1 << 9) | (1 << 10)
                 "mov cr4, eax",
             );
 
@@ -96,10 +96,11 @@ pub extern "C" fn _start() -> ! {
                 "wrmsr",
             );
 
-            // Enable paging
+            // Enable paging, Set MP, Clear EM
             asm!(
                 "mov eax, cr0",
-                "or eax, 1 << 31",
+                "and eax, 0xFFFFFFFB", // Clear EM (bit 2)
+                "or eax, 0x80000002",  // Set PG (bit 31) | MP (bit 1)
                 "mov cr0, eax",
             );
 
