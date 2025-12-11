@@ -40,15 +40,11 @@ qemu-system-x86_64 -drive file=build/disk.img,format=raw -m 1G -serial stdio
 
 - 🚀 **Three-Stage Boot** — Modular 512B → 16KB → 16KB → Kernel (32-bits)
 - 🚀 **Four-Stage Boot** — Modular 512B → 16KB → 16KB → 16KB → Kernel (64-bits)
-- 🔧 **Hardware Setup** — Configures GDT, TSS, memory map (E820), RSDP, and VBE graphics
+- 🔧 **Hardware Setup** — Configures GDT, TSS, memory map (E820), RSDP and VBE/VGA graphics
 - 💾 **Disk I/O** — BIOS interrupts (16-bit) and ATA PIO (32/64-bit)
 - 🦀 **Pure Rust** — Minimal assembly, custom target specs for 16/32/64-bit
 
 ## Architecture
-```
-Stage 1 (0x7c00)  →  Stage 2 (0x7e00)  →  Stage 3 (0xfe00)  →  Stage 3 (0x1_7e00)  →  Kernel (0x10_0000)
-  512 bytes            16KB real mode       16KB protected       16KB protected       Your kernel here
-  BIOS loads           Sets up hardware    boots in 32 or 64      Loads kernel       Receives boot info
 ```
 
 **Disk Layout:**
