@@ -119,8 +119,3 @@ const STACK_ADDRESS: u64 = 0x30_0000;
 
 Licensed under the [MIT License](LICENSE).
 
----
-
-<div align="center">
-  <sub>Boots fast 🚀 or breaks trying 😰</sub>
-</div>
