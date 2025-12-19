@@ -5,9 +5,9 @@ use core::arch::asm;
 use crate::debug::debug;
 
 mod debug;
-mod disk;
 
-const STACK_ADDR: u64 = 0x30_0000;
+
+const STACK_ADDR: u64 = 0xA0_0000;
 
 pub const NEXT_STAGE_LBA: u64 = 6144;
 pub const KERNEL_RAM: u32 = 0x10_0000;
@@ -33,7 +33,8 @@ pub extern "C" fn _start() -> ! {
 
     }
 
-    disk::read(NEXT_STAGE_LBA, 2048, KERNEL_RAM as *mut u8);
+    // Kernel is already loaded by Stage 2 at KERNEL_RAM
+    // disk::read(NEXT_STAGE_LBA, 2048, KERNEL_RAM as *mut u8);
 
     unsafe {
         asm!(
@@ -51,4 +52,3 @@ pub extern "C" fn _start() -> ! {
 pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     loop {}
 }
-

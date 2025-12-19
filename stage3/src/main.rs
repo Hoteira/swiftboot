@@ -1,28 +1,26 @@
 #![no_std]
 #![no_main]
 
-mod disk;
-mod debug;
 mod boot;
-mod paging;
+mod debug;
 mod gdt;
+mod paging;
 mod tss;
 
-use core::arch::asm;
 use crate::debug::debug;
+use core::arch::asm;
 
-use core::panic::PanicInfo;
-use core::ptr::addr_of;
 use crate::boot::BootInfo;
 use crate::gdt::GDT;
+use core::panic::PanicInfo;
+use core::ptr::addr_of;
 
 pub const NEXT_STAGE_RAM: u64 = 0x1_7e00;
 pub const NEXT_STAGE_LBA: u64 = 5120;
 pub const KERNEL_RAM: u32 = 0x10_0000;
 pub const KERNEL_LBA: u64 = 1644;
 
-
-const STACK_ADDRESS: u64 = 0x30_0000;
+const STACK_ADDRESS: u64 = 0xA00000;
 const BOOT_MODE: u8 = 64; //32 or 64 bits
 
 #[unsafe(no_mangle)]
@@ -56,8 +54,6 @@ pub extern "C" fn _start() -> ! {
     if BOOT_MODE == 32 {
         debug("[+] Jumping to kernel ...\n");
 
-        disk::read(KERNEL_LBA, 2048, KERNEL_RAM as *mut u8);
-
         unsafe {
             asm!(
                 "push {1:e}",
@@ -70,12 +66,9 @@ pub extern "C" fn _start() -> ! {
     } else if BOOT_MODE == 64 {
         debug("[+] Jumping to long mode ...\n");
 
-        disk::read(NEXT_STAGE_LBA, 1024, NEXT_STAGE_RAM as *mut u8);
-
         paging::setup_paging();
 
         unsafe {
-
             asm!(
                 "mov cr3, {0:e}",
                 in(reg) 0x2_0000,
@@ -89,12 +82,7 @@ pub extern "C" fn _start() -> ! {
             );
 
             // Set LME bit in EFER MSR
-            asm!(
-                "mov ecx, 0xC0000080",
-                "rdmsr",
-                "or eax, 1 << 8",
-                "wrmsr",
-            );
+            asm!("mov ecx, 0xC0000080", "rdmsr", "or eax, 1 << 8", "wrmsr",);
 
             // Enable paging, Set MP, Clear EM
             asm!(

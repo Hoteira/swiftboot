@@ -28,6 +28,7 @@ fn main() {
     obj_copy("stage4", &bits64_path, &build_dir.join("stage4.bin"), &root);
 
     let mut disk = File::create(build_dir.join("disk.img")).unwrap();
+    disk.set_len(64 * 1024 * 1024).unwrap();
     copy(&mut disk, "bootloader", 0, &build_dir);
     copy(&mut disk, "stage2", 2048, &build_dir);
     copy(&mut disk, "stage3", 3072, &build_dir);

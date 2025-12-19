@@ -5,6 +5,7 @@ members = [
     "stage3",
     "stage4",
     "cargo-compile",
+    "kernel",
 ]
 
 resolver="2"
