@@ -9,8 +9,6 @@
 [![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=flat&logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![no_std](https://img.shields.io/badge/no__std-compatible-success.svg)](https://docs.rust-embedded.org/book/)
-
-<sub>🚀 Three-Stage Boot • 🦀 Pure Rust • 💻 Real Mode → Protected Mode → Long Mode </sub>
 </div>
 
 <br>
@@ -38,11 +36,11 @@ qemu-system-x86_64 -drive file=build/disk.img,format=raw -m 1G -serial stdio
 
 ## Features
 
-- 🚀 **Three-Stage Boot** — Modular 512B → 16KB → 16KB → Kernel (32-bits)
-- 🚀 **Four-Stage Boot** — Modular 512B → 16KB → 16KB → 16KB → Kernel (64-bits)
-- 🔧 **Hardware Setup** — Configures GDT, TSS, memory map (E820), RSDP and VBE/VGA graphics
-- 💾 **Disk I/O** — BIOS interrupts (16-bit) and ATA PIO (32/64-bit)
-- 🦀 **Pure Rust** — Minimal assembly, custom target specs for 16/32/64-bit
+- **Three-Stage Boot** — Modular 512B → 16KB → 16KB → Kernel (32-bits)
+- **Four-Stage Boot** — Modular 512B → 16KB → 16KB → 16KB → Kernel (64-bits)
+- **Hardware Setup** — Configures GDT, TSS, memory map (E820), RSDP and VBE/VGA graphics
+- **Disk I/O** — BIOS interrupts (16-bit) and ATA PIO (32/64-bit)
+- **Pure Rust** — Minimal assembly, custom target specs for 16/32/64-bit
 
 ## Architecture
 ```
@@ -68,7 +66,7 @@ struct BootInfo {
 extern "C" fn _start(bootinfo_ptr: *const BootInfo) { ... }
 ```
 
-## 🏗️ Boot Stage Pipeline
+## Boot Stage Pipeline
 
 The boot process is divided into four distinct stages, utilizing custom target specifications (`bits16`, `bits32`, `bits64`) to ensure correct code generation.
 
@@ -119,8 +117,3 @@ const STACK_ADDRESS: u64 = 0x30_0000;
 
 Licensed under the [MIT License](LICENSE).
 
----
-
-<div align="center">
-  <sub>Boots fast 🚀 or breaks trying 😰</sub>
-</div>
