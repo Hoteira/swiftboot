@@ -3,7 +3,7 @@
 #[derive(Debug, Clone, Copy)]
 pub struct BootInfo {
     mmap: MemoryMap,
-    rsdp: Rsdp,
+    pub(crate) rsdp: Rsdp,
     pub tss: u16,
     vbe: VbeInfoBlock,
     mode: VbeModeInfoBlock,
@@ -29,11 +29,11 @@ pub struct MemoryMap {
 #[repr(C, packed)]
 #[derive(Debug, Clone, Copy)]
 pub struct Rsdp {
-    signature: [u8; 8],
-    checksum: u8,
-    oem_id: [u8; 6],
-    revision: u8,
-    rsdt_address: u32,
+    pub(crate) signature: [u8; 8],
+    pub(crate) checksum: u8,
+    pub(crate) oem_id: [u8; 6],
+    pub(crate) revision: u8,
+    pub(crate) rsdt_address: u32,
 }
 
 #[repr(C, packed)]

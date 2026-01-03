@@ -1,16 +1,6 @@
-#[repr(C, packed)]
-#[derive(Debug, Clone, Copy)]
-pub struct Rsdp {
-    signature: [u8; 8],
-    checksum: u8,
-    oem_id: [u8; 6],
-    revision: u8,
-    rsdt_address: u32,
-}
+use crate::boot::Rsdp;
 
 #[inline(never)]
-
-
 pub fn get_rsdp() -> Rsdp {
     let mut addr = 0xE0000 as *const u8;
     let end = 0xFFFFF as *const u8;

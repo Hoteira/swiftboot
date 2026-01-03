@@ -7,6 +7,7 @@ mod tss;
 mod mmap;
 mod vbe;
 mod debug;
+
 mod rsdp;
 
 use core::ptr::addr_of;
@@ -156,7 +157,7 @@ fn protected_mode() {
         let tss_addr = (*(&raw mut GDT)).write_tss();
         (*(&raw mut GDT)).load();
 
-        BOOT.rsdp = get_rsdp();
+        //BOOT.rsdp = get_rsdp();
         BOOT.vbe = get_vbe_info();
         BOOT.tss = tss_addr;
         get_mmap();
